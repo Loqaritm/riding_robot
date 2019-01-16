@@ -1,5 +1,5 @@
-#include <DallasTemperature.h>
 #include <OneWire.h>
+#include <DallasTemperature.h>
 
 #define trigPin 12
 #define echoPin 9
@@ -16,7 +16,7 @@ DallasTemperature sensors(&oneWire);
 void setup() {
   Serial.begin(9600);
   String readString;
-//  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
   pinMode(dcLeft, OUTPUT);
   pinMode(dcRight, OUTPUT);
   pinMode(trigPin, OUTPUT); //Pin, do którego podłączymy trig jako wyjście
@@ -26,7 +26,7 @@ void setup() {
 
 int zmierzOdleglosc() {
   long czas, dystans;
-   digitalWrite(trigPin, LOW);
+  digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
   digitalWrite(trigPin, HIGH);
   delayMicroseconds(10);
@@ -51,10 +51,12 @@ void loop() {
       analogWrite(dcLeft, 0);
       delay(50);
       idle = true;
+      moving = false;
     }
     delay(50);
     sensors.requestTemperatures();
     Serial.println(sensors.getTempCByIndex(0));
+    delay(50);
   
   while (Serial.available() > 0) {
     delay(3);  //delay to allow buffer to fill 
@@ -68,32 +70,32 @@ void loop() {
       
       if(readString == "up"){
 //        Serial.println("received up");
-//        digitalWrite(LED_BUILTIN, HIGH);
+        digitalWrite(LED_BUILTIN, HIGH);
         idle = false;
         if(leftMotor <= 245){
           if(leftMotor == 0){
             leftMotor = 100;
           }
-          leftMotor +=10;
+          leftMotor +=50;
         }
         if(rightMotor <= 245){
           if(rightMotor == 0){
             rightMotor = 100;
           }
-          rightMotor +=10;
+          rightMotor +=50;
         }
       }
       else if(readString == "down"){
 //        Serial.println("received down");
-//        digitalWrite(LED_BUILTIN, LOW);
-        if(leftMotor >= 10){
-          leftMotor -= 10;
+        digitalWrite(LED_BUILTIN, LOW);
+        if(leftMotor >= 150){
+          leftMotor -= 50;
         }
         else{
           leftMotor = 0;
         }
-        if(rightMotor >= 10){
-          rightMotor -=10;
+        if(rightMotor >= 150){
+          rightMotor -=50;
         }
         else{
           rightMotor = 0;
@@ -105,28 +107,28 @@ void loop() {
       }
       else if(readString == "left"){
 //        Serial.println("received left");
-        if(leftMotor > rightMotor && leftMotor >= 10){
-          leftMotor -= 10;
+        if(leftMotor > rightMotor && leftMotor >= 150){
+          leftMotor -= 50;
         }
-        else if(leftMotor < 10){
+        else if(leftMotor < 150){
           leftMotor = 0;
           moving = false;
         }
         else if(rightMotor <= 245){
-          rightMotor += 10;
+          rightMotor += 50;
         }
       }
       else if(readString == "right"){
 //        Serial.println("received right");
-        if(rightMotor > leftMotor && rightMotor >= 10){
-          rightMotor -=10;
+        if(rightMotor > leftMotor && rightMotor >= 150){
+          rightMotor -=50;
         }
-        else if(rightMotor < 10){
+        else if(rightMotor < 150){
           rightMotor = 0;
           moving = false;
         }
         else if(leftMotor <= 245){
-          leftMotor += 10;
+          leftMotor += 50;
         }
       }
       
@@ -136,10 +138,10 @@ void loop() {
   }
   if(!idle){
     if(!moving){
-      analogWrite(dcRight, 250);
-      delay(50);
-      analogWrite(dcLeft, 250);
-      delay(50);
+      analogWrite(dcRight, 255);
+      delay(200);
+      analogWrite(dcLeft, 255);
+      delay(1000);
       moving = true;
       idle = false;
     }
